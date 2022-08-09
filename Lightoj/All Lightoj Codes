@@ -1,0 +1,5037 @@
+
+// Problem: Mathematically Hard
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/mathematically-hard
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[5000003], B[MAX], C[MAX];
+
+
+
+//Linear sieve algo from http://e-maxx.ru/algo/prime_sieve_linear with this feature
+
+const int N = 5000003;
+vector<ll> phi(N + 1);
+void phi_1_to_n(int n) {
+    n = N;
+    
+    phi[0] = 0;
+    phi[1] = 1;
+    for (int i = 2; i <= n; i++)
+        phi[i] = i - 1;
+
+    for (int i = 2; i <= n; i++)
+        for (int j = 2 * i; j <= n; j += i)
+              phi[j] -= phi[i];
+}
+
+
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+    phi_1_to_n(N);
+    for(int i = 2; i <= N - 1; i++){
+        A[i] = A[i - 1] + (phi[i] * 1LL * phi[i]);
+    }
+
+    while(t--){
+        cin >> n >> m;
+        if(n > m)swap(n , m);
+        cout << "Case "<<++cnt<<": "<<A[m] - A[n - 1] <<"\n";
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+// Problem: Min Max Roads
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/min-max-roads
+// Memory Limit: 64 MB
+// Time Limit: 3000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<62
+#define   ll     long long
+#define   LN    20
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+
+int  pa[20][100007], maxx[20][100007];
+int depth[MAX], value[MAX], minn[20][100007];
+vector<int> G[100007];
+
+void dfs(int cur, int prev = -1, int _depth = 0) {
+	pa[0][cur] = prev;
+	depth[cur] = _depth;
+	for(int i=0; i<G[cur].size(); i++){
+		if(G[cur][i] != prev) {
+			dfs(G[cur][i], cur, _depth + 1);
+		}
+	}
+}
+void dfs1(int cur, int prev = -1) {
+	minn[0][cur] = (cur != 0)?value[cur]:INT_MAX;
+	maxx[0][cur] = value[cur]; 
+	for(int i=0; i<G[cur].size(); i++){
+		if(G[cur][i] != prev) {
+			dfs1(G[cur][i], cur);
+		}
+	}
+}
+
+void build(int n){
+    for(int i=1; i<=LN; i++){
+		for(int j=0; j<n; j++){
+			if(pa[i-1][j] != -1){
+				pa[i][j] = pa[i-1][pa[i-1][j]];
+				minn[i][j] = min(minn[i - 1][j], minn[i-1][pa[i-1][j]]);
+				maxx[i][j] = max(maxx[i - 1][j], maxx[i-1][pa[i-1][j]]);
+			}
+		}
+	}
+}
+pair<int, int> query(int u, int v) {
+	if(depth[u] < depth[v]) swap(u,v);
+	int diff = depth[u] - depth[v];
+	int Min = INT_MAX, Max = 0;
+	for(int i=0; i < LN; i++){ 
+	    if((diff >> i)&1){
+	        Min = min(Min, minn[i][u]);//1 << i
+	        Max = max(Max, maxx[i][u]);//1 << i
+	        u = pa[i][u];
+	    }
+	}
+	if(u == v) return {Min,Max};
+	for(int i=LN-1; i>=0; i--) {
+    	if(pa[i][u] != pa[i][v]) {
+    	    Max = max(maxx[i][u], Max);
+    	    Max = max(maxx[i][v], Max);
+    	    Min = min(minn[i][u], Min);
+    	    Min = min(minn[i][v], Min);
+    		u = pa[i][u];
+    		v = pa[i][v];
+    	}
+    }
+    Min = min(Min, minn[0][u]);
+    Min = min(Min, minn[0][v]);
+    Max = max(Max, maxx[0][u]);
+    Max = max(Max, maxx[0][v]);
+	return {(int)Min,(int)Max};
+}
+
+int main ()
+{
+    ll a,b,c,d,n,m,k,l,p,q,r,t,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    scanf("%lld", &t);
+    while(t--){
+        scanf("%lld", &n);
+        for(int i = 0; i < 20; i++){
+            for(int j = 0; j < 100001; j++){
+                minn[i][j] = INT_MAX;
+                maxx[i][j] = 0;
+                pa[i][j] = -1;
+                value[i] = 0;
+            }
+        }
+        cntr = 0;
+    	for(int i = 0; i < n; i++){
+    	    G[i].clear();
+    	    depth[i] = 0;
+    	}
+        for(int i = 1; i < n; i++){
+            scanf("%lld %lld %lld", &A[i], &B[i], &C[i]);
+            --A[i]; --B[i];
+            G[A[i]].pb(B[i]);
+            G[B[i]].pb(A[i]);
+        }
+        dfs(0);
+        value[0] = 0;
+        
+        for(int i = 1; i < n; i++){
+            
+            if(depth[A[i]] > depth[B[i]]){
+                value[A[i]] = C[i];
+            }
+            else value[B[i]] = C[i];
+        }
+        dfs1(0);
+        
+        build(n);
+        printf("Case %lld:\n", ++cnt);
+        scanf("%lld", &q);
+        for(int cs = 1; cs <= q; cs++){
+            scanf("%lld %lld", &a, &b);
+            pair<int, int> pi = query(--a, --b);
+            printf("%d %d\n", pi.first, pi.second);
+        }
+        
+    }
+    /* 
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return 0;
+}
+
+
+// Problem: Mysterious Bacteria
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/mysterious-bacteria
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+vector<ll>prime;
+bool mark[MAX1];
+ll N = 100000 + 10;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+
+int main ()
+{
+    
+    int t, cnt = 0;
+    
+    seive();
+    scanf("%d", &t);
+
+    while(t--){
+        ll n;
+        scanf("%lld", &n);
+        int cntr; bool flag = false;
+        if(n < 0){
+            flag = true;
+        }
+        ll m = abs(n); vector<pair<ll, int> > v;
+        for(int i = 0; prime[i] * 1LL * prime[i] <= m; i++){
+            if(m % prime[i])continue;
+            cntr = 0;
+            while(m % prime[i] == 0){
+                cntr++; m /= prime[i];
+            }
+            v.pb({prime[i], cntr});
+        }
+        if(m != 1)v.pb({m, 1});
+        
+        ll ans = 1;
+        for(int i = 2; i <= 40; i++){
+            int check = 0;
+            for(int j = 0; j < v.size(); j++){
+                int a = v[j].second % i;
+                if(a){
+                    check = 1; break;
+                }
+                
+            }
+            if(check == 0)ans = i;
+        }
+        if(flag)while(ans % 2 != 1)ans /= 2; 
+        printf("Case %d: %lld\n",++cnt, ans);
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: One Theorem, One Year
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/one-theorem-one-year
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+vector<ll>prime;
+bool mark[MAX1];
+ll N = 10000;
+const int mod = 1000000007;
+
+int add(int a, int b) {a += b; if(a >= mod) a -= mod; return a;}
+int sub(int a, int b) {a -= b; if( a < 0) a += mod; return a;}
+int mul(int a, int b) {
+	return int(a * 1ll * b % mod);
+}
+
+int bin_pow(int o, int s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    int d = bin_pow(o, s/2);
+    d = (d * 1LL * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+ll dp[505][505];
+void precalc(){
+    dp[0][0] = 1;
+    for(int i = 1; i <= prime.size(); i++){
+        for(int j = 1; j <= 500; j++){
+            dp[i][j] = mul(dp[i- 1][j - 1], prime[i - 1] - 1);
+            dp[i][j] = add(dp[i][j], mul(dp[i][j - 1], prime[i - 1]));
+        }
+    }
+}
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+    seive();
+    while(prime.size() > 500){
+        prime.pop_back();
+    }
+    precalc();
+    /*for(int i = 1; i <= 10; i++){
+        for(int j= 1; j <= 10; j ++){
+            cout << dp[i][j]<<" ";
+        }
+        cout << endl;
+    }*/
+
+    while(t--){
+        cin >> n >> k;
+        cout << "Case "<<++cnt<<": "<< dp[k][n] << endl;
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+// Problem: One Way Roads
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/one-way-roads
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// 
+// Powered by CP Editor (https://cpeditor.org)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+vector<int> g[MAX];
+map<pair<int, int>, int> M;
+
+int dfs(int u, int par){
+	int sum = 0;
+	B[u] = 1;
+	for(auto v: g[u]){
+		if(B[v]){
+			if(v == 1 and par != 1){
+				sum = M[{v, u}];
+			}
+			continue;
+		}
+		sum += dfs(v, u);
+	}
+	return sum + M[{u, par}];
+}
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+
+    while(t--){
+        cin >>  n;
+        M.clear();
+        for(int i = 0; i <= n; i++){
+        	g[i].clear(); B[i] = 0;
+        }
+        
+        for(int i = 1; i <= n; i++){
+        	cin >> a >> b >> c;
+        	M[{a, b}] = c;
+        	g[a].pb(b);
+        	g[b].pb(a);
+        }
+        for(int i = 1; i <= n; i++){
+        	sort(g[i].begin(), g[i].end());
+        }
+        ans = dfs(1, -1);
+        for(int i = 1; i <= n; i++){
+        	sort(g[i].rbegin(), g[i].rend());
+        	B[i] = 0;
+        }
+        ans = min(ans, (ll)dfs(1, -1));
+        cout <<"Case "<<++cnt<<": "<< ans << endl;
+        
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: Pairs Forming LCM
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/pairs-forming-lcm
+// Memory Limit: 64 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+vector<ll>prime;
+bool mark[MAX1];
+ll N = 1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+
+int main ()
+{
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+    seive();
+    cin >> t;
+    // Wrong code.  Ac code ache lightoj te.
+
+    while(t--){
+        cin >> n;
+        vector<pair<ll, int> > v;
+        
+        m = n;
+        for(int i = 0;  i < prime.size() and prime[i] * 1LL * prime[i] <= m; i++){
+            if(m % prime[i])continue;
+            cntr = 0;
+            while(m % prime[i] == 0){
+                cntr++; m /= prime[i];
+            }
+            v.pb({prime[i], cntr});
+        }
+        if(m != 1){
+            v.pb({m, 1});
+        }
+        cout << "Case "<<++cnt<<": ";
+        if(n == 1){
+            cout << 1 << endl;
+        }
+        else if(v.size() == 1){
+            cout << v[0].second + 1 << endl;
+
+        }
+        else{
+            ans = 1LL;
+            for(auto it: v){
+                ans *= (it.second + 1);
+            }
+            ll sum = ans;
+            for(auto it: v){
+                sum += (ans / it.first) - 1;
+            }
+            
+            cout << sum << endl;
+        }
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: Points in Segments (II)
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/points-in-segments-ii
+// Memory Limit: 64 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<62
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+/*
+ll sti(string a,int base=10)
+{
+	ll k=0;
+	for (int i=0;i<(int)a.size();++i)
+	{
+		k*=base;
+		k+=a[i]-'0';
+	}
+	return k;
+}
+ 
+/*
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+struct sourav{
+    ll value, type, idx;
+    sourav(int a, int b, int c){
+        value = a;
+        type = b; 
+        idx = c;
+    } 
+    bool operator<(sourav other) const{
+        if(value == other.value) return type < other.type;
+        return value < other.value;
+    }
+};
+vector< sourav >VP;
+
+int main ()
+{
+    fastIO();
+    ll a,b,c,d,n,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    cin>>t;
+
+    while(t--){
+        cin>>n >> q;
+        for(int i = 0; i < n; i++){
+            cin >> a >> b;
+            VP.pb(sourav(a,0, -1));
+            VP.pb(sourav(b,2, -1));
+        }
+        for(int i = 0; i < q ; i++){
+            cin >> a;
+            VP.pb(sourav(a, 1, i));
+        }
+        printf("Case %lld:\n", ++cntr);
+        sort(VP.begin(), VP.end());
+        cnt = 0;
+        vector<ll> Ans(q);
+        for(int i = 0; i < VP.size(); i++){
+            if(VP[i].type == 1){
+                Ans[VP[i].idx] = cnt;
+            }
+            else if(VP[i].type == 0){
+                cnt++;
+            }
+            else cnt--;
+        }
+        for(int i = 0; i < q; i++){
+            printf("%lld\n", Ans[i]);
+        }
+        VP.clear();
+    }
+    /* 
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return 0;
+}
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   inf   INT_MAX
+#define   minf  -1*INT_MAX
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+int A[MAX];
+int B[MAX];
+int C[MAX];
+vector<int>V;
+vector<int>Ans;
+vector<pair<int, int>>VP;
+map<int, int>M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+/*
+void dfs(int source, int par){
+	cnt[source] = 1;
+	
+	for(auto v:g[source]){
+		if(v==par)continue;
+		dfs(v,source);
+		cnt[source] += cnt[v];
+	}
+}
+*/
+vector<int>divisor[100006];
+double dp[100006];
+bool vis[100006];
+void div(){
+	for(int i = 2; i <= 100000; i++){
+		for(int j = i; j <= 100000; j += i){
+			divisor[j].pb(i);
+		}
+	}
+}
+
+double calc(int n){
+	if(n==1)return 0;
+	double& ret = dp[n];
+	if(vis[n])return ret;
+	ret = 1;
+	int Size = divisor[n].size();
+	for(int i = 0; i < Size; i++){
+		ret += calc(n/divisor[n][i]) + 1;
+	}
+	ret /= (double)Size;
+	return ret;
+}
+int main ()
+{
+    fastIO();
+    int a,b,c,d,n,m,k,l,p,q,r,t,x,y;
+    int cntr=0,sum=0,ans=1,check=0;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    div();
+    
+    scanf("%d",&t);
+    for(int cs = 1; cs <= t; cs++){
+    	scanf("%d",&n);
+    	printf("Case %d: %.10lf\n",cs,calc(n));
+    }
+
+    return 0;
+}
+
+
+// Problem: Repeated Digit Sum
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/repeated-digit-sum
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+
+string intst(ll n){
+    string s ="";
+    while(n){
+        int rem = n % 10;
+        n /= 10;
+        s += char(48 + rem);
+    }
+    reverse(s.begin(), s.end());
+    return s;
+}
+
+string sod(string n){
+    ll sum = 0; int i = 0;
+    while(i < n.size()){
+        int a = n[i] - 48;
+        sum += a;
+        i++;
+    }
+    n = intst(sum);
+    return n;
+}
+
+ll f(string n) {
+  while (n.size() >= 2) {
+    n = sod(n);
+  }
+  ll a = n[0] - 48;
+  return a;
+}
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+
+    while(t--){
+        cin >> s >> s1;
+        n = s.size();
+        m = s1.size();
+        sum = 0;
+        cout <<"Case "<<++cnt<<": ";
+        a = f(s);
+        if(s.size() == 1 and s[0] == '0'){
+            cout << 0 << endl; continue;
+        }
+        else if(s1.size() == 1 and s1 == "0"){
+            cout << 1 << endl; continue;
+        
+        }
+        if(a == 1){
+            cout << 1 << endl;
+        }
+        else if(a == 2){
+            int arr[] = {0, 2,4,8,7,5,1};
+            int rem = 0;
+            for(int i = 0; i < m; i++){
+                c = s1[i] - '0';
+                d = rem * 10 + c;
+                rem = d % 6;
+            }
+            if(rem == 0)rem = 6;
+            cout << arr[rem] << endl;
+        }
+        else if(a == 3 or a == 6){
+            if(s1 == "1"){
+                if(a == 3) cout << 3 << endl;
+                else cout << 6 << endl;
+            } 
+            else cout << 9 << endl;
+        }
+        else if(a == 4){
+            int arr[] = {0,4,7,1};
+            int rem = 0;
+            for(int i = 0; i < m; i++){
+                c = s1[i] - '0';
+                d = rem * 10 + c;
+                rem = d % 3;
+            }
+            if(rem == 0)rem = 3;
+            cout << arr[rem] << endl;
+        }
+        else if(a == 5){
+            int arr[] = {0, 5,7,8,4,2,1};
+            int rem = 0;
+            for(int i = 0; i < m; i++){
+                c = s1[i] - '0';
+                d = rem * 10 + c;
+                rem = d % 6;
+            }
+            if(rem == 0)rem = 6;
+            cout << arr[rem] << endl;
+        }
+        else if(a == 7){
+            int arr[] = {0,7,4,1};
+            int rem = 0;
+            for(int i = 0; i < m; i++){
+                c = s1[i] - '0';
+                d = rem * 10 + c;
+                rem = d % 3;
+            }
+            if(rem == 0)rem = 3;
+            cout << arr[rem] << endl;
+        }
+        else if(a == 8){
+            a = s1[m - 1] - '0';
+            if(a % 2)cout << 8 << endl;
+            else cout << 1 << endl;
+        }
+        else cout << 9 << endl;
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: Sigma Function
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/sigma-function
+// Memory Limit: 64 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+    vector<ll> v1, v;
+    for(int i = 0; ; i++){
+        ans = (1LL << i);
+        if(ans > 1e13)break;
+        v1.pb(ans);
+    }
+     v = v1;
+    
+    for(int i = 1; ; i++){
+        ans = i * 1LL * i;
+        a = 1e12 + 100;
+        if(ans > a)break;
+        v.pb(ans);
+        for(auto it: v1){
+            sum = ans * 1LL * it;
+            if(sum > a)break;
+            v.pb(sum);
+        }
+    }
+    sort(v.begin(), v.end());
+    v.resize(unique(v.begin(), v.end()) - v.begin());
+
+    while(t--){
+        cin >> n;
+        int id = upper_bound(v.begin(), v.end(), n) - v.begin();
+        cout << "Case "<<++cnt<<": "<<n - id << endl;
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: The Specials Menu
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/the-specials-menu
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+ll dp[200][200];
+string s;
+
+ll calc(int i, int j){
+    if(i == j)return 1;
+    if(i > j){
+        return 0;
+    }
+    ll &ret = dp[i][j];
+    if(ret != -1)return ret;
+    ret = 0;
+    if(s[i] == s[j]){
+        ret = 1 + calc(i , j - 1) + calc(i + 1, j);
+    }
+    else{
+        ret = calc(i, j -1) + calc(i + 1, j) - calc(i + 1, j -1);
+    }
+    return ret;
+}
+
+int main ()
+{
+    fastIO();
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string  s1, s2;
+
+    cin >> t;
+
+    while(t--){
+        cin >> s;
+        mem(dp, -1);
+        ans = calc(0, s.size() - 1);
+        cout<<"Case "<<++cnt<<": "<<ans<<endl;
+
+    }
+    /* 
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+ll a, b, c, d, e, f;
+ll dp[10007];
+ll fn( ll n ) {
+    if(dp[n]!=-1)return dp[n];
+    if( n == 0 ) return a;
+    if( n == 1 ) return b;
+    if( n == 2 ) return c;
+    if( n == 3 ) return d;
+    if( n == 4 ) return e;
+    if( n == 5 ) return f;
+    dp[n]=(fn(n-1) + fn(n-2) + fn(n-3) + fn(n-4) + fn(n-5) + fn(n-6))%;
+    return dp[n];
+}
+int main() {
+    ll n, caseno = 0, cases;
+    scanf("%lld", &cases);
+    while( cases-- ) {
+        scanf("%lld %lld %lld %lld %lld %lld %lld", &a, &b, &c, &d, &e, &f, &n);
+        memset(dp,-1,sizeof(dp));
+        printf("Case %lld: %lld\n", ++caseno, fn(n) % 10000007);
+    }
+    return 0;
+}
+
+
+// Problem: 1011 - Marriage Ceremonies
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1011
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+int A[20][20];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+int n;
+int dp[17][1<<17];
+int calc(int i, int mask){
+	if(i > n)return 0;
+	int& ret = dp[i][mask];
+	if(ret!=-1)return ret;
+	ret = 0;
+	for(int j = 1; j <= n; j++){
+		if(!(mask&(1<<j))){
+			ret = max (ret,calc(i+1,mask|(1<<j))+A[i][j]);
+		}
+	}
+	return ret;
+}
+int main ()
+{
+    fastIO();
+    ll a,b,c,d,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    cin>>t;
+
+    while(t--){
+        cin>>n;
+		for(int i = 1; i <= n; i++){
+			for(int j = 1; j <= n; j++){
+				cin >> A[i][j];
+			}
+		}
+		mem(dp,-1);
+		ans = calc(1,0);
+		printf("Case %lld: %lld\n",++cntr,ans);
+    }
+
+    return 0;
+}
+
+
+// Problem: 1013 - Love Calculator
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1013
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+
+string s,s1,s3,s4;
+int lookup[50][50];
+ll dp[50][50] ;
+
+int lcs(int n, int m){
+	if(n == 0 || m == 0){
+		lookup[n][m] = 0;
+		return 0;
+	}
+	if(lookup[n][m] != -1)return lookup[n][m];
+	if(s[n-1] == s1[m-1]){
+		return lookup[n][m] = max(0,lcs(n-1,m-1)+1);
+	}
+	else {
+		return lookup[n][m] = max(lcs(n-1,m),lcs(n,m-1));
+	}
+	
+}
+ll Count(int i, int j){
+	if(i==0||j==0){
+		return 1LL;
+	}
+	ll& ret = dp[i][j];
+	if(ret!=-1){
+		return ret;
+	}
+	if(s[i-1] == s1[j-1]){
+		ret = Count(i-1,j-1);
+	}
+	else {
+		if(lookup[i-1][j]==lookup[i][j-1]){
+			ret = Count(i-1,j) + Count(i,j-1);
+		}
+		else if(lookup[i-1][j]>lookup[i][j-1]){
+			ret = Count(i-1,j);
+		}
+		else {
+			ret = Count(i,j-1);
+		}
+	}
+	return ret;
+}
+
+int main ()
+{
+    ll a,n,m,b,c,d,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+
+    //cin>>n;
+    scanf("%lld",&t);
+   // cin>>t;
+
+    for(int cs = 1; cs <= t; cs++){
+        cin >> s >> s1;
+        n = s.size();
+        m = s1.size();
+        mem(dp,-1);
+        mem(lookup,-1);
+        
+        int ans = lcs(n,m);
+        sum = Count(n,m);
+        //cout<<sum<<endl;
+        cout<<"Case "<<cs<<": "<<n+m-ans<<" "<<sum<<endl;
+		//printf("Case %d: %d %lld\n",cs,n+m-ans,sum);
+    }
+
+    return 0;
+}
+
+// Problem: 1017 - Brush (III)
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1017
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+ 
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+//#pragma GCC diagnostic ignored "-Wformat"
+ 
+using namespace std ;
+ 
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+ 
+int A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+ 
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+int n,w,K,dp[203][203];
+ 
+int calc(int a, int k){
+   
+    if(k >=K||a >= n) {
+        return 0;
+    }
+    int& ret = dp[a][k];
+    if(ret != -1)return ret;
+    int b = n,val,Max = 0,sum =  A[a];
+    ret = 0;
+    for(int i = a; i < n; i++){
+    	if( A[a] + w < A[i])break;
+    	Max++;
+    	b = i;
+    }
+    int val1 = calc(b+1,k+1) + Max;
+    int val2 = calc(a+1,k);
+    ret = max(val1, val2);
+    return ret;
+}
+ 
+int main ()
+{
+    int a,b,c,d,m,k,l,p,q,r,t,x,y;
+    int cnt=0,cntr=0,sum=0,ans=1,check=0;
+    int Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+ 
+    //cin>>n;
+     scanf("%d",&t);
+ 
+     for(int cs = 1; cs <= t; cs++){
+        scanf("%d %d %d",&n,&w,&K);
+        for(int i = 0; i < n; i++){
+            scanf("%d %d",&x,&y);
+            A[i] = y;
+        }
+        sort(A,A+n);
+        mem(dp,-1);
+        ans = calc(0,0);
+        printf("Case %d: %d\n",cs,ans);
+        //for(int i = 1; i <= n; i++)cout<<B[i]<<" ";cout<<endl;
+ 
+    }
+ 
+    return 0;
+}
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   inf   INT_MAX
+#define   minf  -1*INT_MAX
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+int A[18];
+int B[18];
+int C[MAX];
+vector<int>V;
+vector<int>Ans;
+vector<pair<int, int>>VP;
+map<int, int>M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+int dp[1<<17];
+
+bool isdegenrated_triangle(int ax,int ay, int bx, int by, int cx, int cy){
+	int res = ax*(by-cy)+bx*(cy-ay) + cx*(ay-by);
+
+	return res == 0?1:0;
+}
+int Max,n;
+int calc( int mask){
+	int& ret = dp[mask];
+	if(ret != -1)return ret;
+	if(mask == Max)return 0;
+	int val = Max - mask;
+	if((val&(val-1)) == 0)return 1;
+	
+	ret = 10000000;
+	for(int i = 0; i < n; i++){
+		int temp = mask;
+		if(temp&(1<<i))continue;
+		
+		temp |= (1<<i);
+		for(int j = i+1; j < n; j++){
+			int tmp = temp;
+			if( (tmp&(1<<j)))continue;
+			tmp |= (1<<j);
+			for(int k =  0; k < n; k++){
+				if(tmp&(1<<k))continue;
+				if(isdegenrated_triangle(A[i],B[i],A[j],B[j],A[k],B[k])){
+					tmp = tmp | (1<<k);
+				}
+			}
+			ret = min(ret,1 + calc(tmp));
+		}
+		break;
+	}
+	return ret;
+}
+int main ()
+{
+    fastIO();
+    int a,b,c,d,m,k,l,p,q,r,t,x,y;
+    int cntr=0,sum=0,ans=1,check=0;
+    int Max1=0;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    scanf("%d",&t);
+
+    while(t--){
+        scanf("%d",&n); Max = (1<<n)-1;
+        for(int i = 0; i < n; i++){
+        	scanf("%d %d",&A[i],&B[i]);
+        }
+        mem(dp,-1);
+		printf("Case %d: %d\n",++cntr,calc(0));
+    }
+
+    return 0;
+}
+
+
+// Problem: 1021 - Painful Bases
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1021
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+int A[MAX];
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+int n, base, k;
+ll dp[20][1<<16];
+ll calc(int rem, int j, int mask){
+	if(j == n){
+		if(rem == 0)return 1;
+		else return 0;
+	}
+	ll& ret = dp[rem][mask];
+	if(ret != -1) return ret;
+	ret = 0;
+	for(int i = 0; i < n; i++){
+		if(!(mask&(1<<i))){
+			int val = (rem * base) + A[i];
+			ret += calc(val % k, j + 1, mask|(1<<i));
+		}
+	}
+	return ret;
+}
+
+int main ()
+{
+    int a,b,c,d,m,l,p,q,r,t,x,y;
+    string s,s1,s3,s4;
+
+    scanf("%d",&t);
+    
+    for(int cs = 1; cs <= t; cs++){
+    	char ch[20];
+    	scanf("%d %d",&base,&k);
+    	scanf("%s",ch);
+    	string s(ch);
+    	n = s.size();
+    	for(int i = 0; i < n; i++){
+    		if(s[i]>=65){
+    			A[i] = 10 + s[i] - 65;
+    		}
+    		else A[i] = s[i] - '0';
+    	}
+    	mem(dp,-1);
+    	printf("Case %d: %lld\n",cs,calc(0,0,0));
+    }
+
+    return 0;
+}
+
+
+// Problem: 1027 - A Dangerous Maze
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1027
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   inf   INT_MAX
+#define   minf  -1*INT_MAX
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+
+int A[MAX];
+int B[MAX];
+int C[MAX];
+vector<int>V;
+vector<int>Ans;
+vector<pair<int, int>>VP;
+map<int, int>M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+int dp[1000];
+/*
+void dfs(int source, int par){
+	cnt[source] = 1;
+	
+	for(auto v:g[source]){
+		if(v==par)continue;
+		dfs(v,source);
+		cnt[source] += cnt[v];
+	}
+}
+*/
+int main ()
+{
+    int a,b,c,d,n,m,k,l,p,q,r,t,x,y;
+    int cntr=0,sum=0,ans=1,check=0;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+	scanf("%d",&t);
+	
+	for(int cs = 1; cs <= t; cs++){
+		scanf("%d",&n); cntr = 0;
+		sum = 0;
+		for(int i = 0; i < n; ++i){
+			scanf("%d",&A[i]);
+			if(A[i]<0)cntr++;
+			sum += abs(A[i]);
+		}
+		if(cntr == n){
+			printf("Case %d: inf\n",cs);
+			continue;
+		}
+		a = n - cntr; 
+		int gcd = __gcd(a,sum); 
+		printf("Case %d: %d/%d\n",cs,sum/gcd,(a/gcd));
+		
+	}
+
+    return 0;
+}
+
+
+// Problem: 1030 - Discovering Gold
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1030
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+double dp[1000];
+bool vis[106];
+int n;
+double calc(int i){
+	if(i == n-1)return A[i];
+	double& ret = dp[i];
+	if(vis[i])return ret;
+	vis[i] = 1; ret = 0.0;
+	
+	int limit = min(6,n - i-1);
+	//cout<<limit<<endl;
+	for(int j = 1; j <= limit; j++){
+		ret += calc(i+j) + A[i];
+	}
+	ret /= (double)limit;
+	return ret;
+}
+
+int main ()
+{
+    ll a,b,c,d,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+   	scanf("%lld",&t);
+   	
+   	for(int cs = 1; cs <= t; cs++){
+   		scanf("%d",&n);
+   		for(int i = 0; i < n; i++){
+   			scanf("%lld",&A[i]);
+   		}
+   		mem(vis,0);
+   		mem(dp,0);
+   		a = A[0];
+   		A[0] = 0;
+   		double res = calc(0) + a;
+   		printf("Case %d: %.10lf\n",cs,res);
+   		
+   	}
+
+    return 0;
+}
+
+
+// Problem: 1031 - Easy Game
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1031
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+int dp[103][103],n;
+int calc(int start, int End){
+	if(start>End)return 0;
+	int& ret = dp[start][End];
+	if(ret != -1)return ret;
+	int Max = -100000000;
+	int sum = 0;
+	for(int i = start; i <= End; i++){
+		sum += A[i];
+		Max = max(Max,sum-calc(i+1,End));
+	}
+	sum = 0;
+	for(int i = End; i >= start; i--){
+		sum += A[i];
+		Max = max(Max,sum-calc(start,i-1));
+	}
+
+	return 	ret = Max; 
+}
+int main ()
+{
+    fastIO();
+    ll a,b,c,d,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    cin>>t;
+
+    while(t--){
+        cin>>n;
+        for(int i = 0; i < n; i++){
+        	cin >> A[i];
+        }
+        mem(dp,-1);
+        printf("Case %lld: %d\n",++cntr,calc(0,n-1));
+        
+
+    }
+
+    return 0;
+}
+
+
+// Problem: Easy Game
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/easy-game
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include<bits/stdc++.h>
+using namespace std;
+int dp[102][102], A[102], n;
+int calc(int i, int j){
+    if(i > j)return 0;
+    int &ret = dp[i][j];
+    if(ret != INT_MAX)return ret;
+    int ret1 = -INT_MAX; int sum = 0;
+    int ret2 = -INT_MAX;
+    for(int k = i; k <= j; k++){
+        sum += A[k];
+        ret1 = max(ret1, sum - calc(k + 1, j));
+    }
+    sum = 0;
+    for(int k = j; k >= i; k--){
+        sum += A[k];
+        ret2 = max(ret2, sum- calc(i, k - 1));
+    }
+    ret = max(ret1, ret2);
+    return ret;
+    
+}
+
+int main(){
+    int test;
+    cin >> test;
+    for(int cs = 1; cs <= test; cs++){
+        cin >> n;
+        for(int i = 0; i < n + 1; i++){
+            for(int j = 0; j <= n; j++){
+                dp[i][j] = INT_MAX;
+            }
+        }
+        for(int i = 0; i < n; i++){
+            cin >> A[i];
+        }
+        int ans = calc(0, n - 1);
+        cout << "Case "<<cs<<": "<<ans<<endl;
+    }
+}
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   inf   INT_MAX
+#define   minf  -1*INT_MAX
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+int A[MAX];
+int B[MAX];
+int C[MAX];
+vector<int>V;
+vector<int>Ans;
+vector<pair<int, int>>VP;
+map<int, int>M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+pair<ll,ll>dp[34][2][2];
+bool vis[34][2][2];
+
+pair<ll,ll> calc(int idx, int last, int tight){
+	if(idx == 0){
+		int chk = B[idx] and B[idx+1];
+		if(last == 0)return {0,1};
+		else return {0,2};
+	}
+	pair<ll,ll>& ret=dp[idx][last][tight];
+	if(vis[idx][last][tight] == 1)return ret;
+	vis[idx][last][tight] = 1;
+	int limit = (tight==1)?1:A[idx];
+	ret.first = 0;
+	ret.second = 0;
+	for(int i = 0; i<=limit; i++){
+		B[idx] = i;
+		pair<ll,ll> P;
+		P = calc(idx-1,i,tight|(i<A[idx]));
+		ret.first += P.first;
+		ret.second = P.second;
+	}
+	ll a = 0;
+	if(limit)a = (1LL<<idx) + (1LL<<(idx-1));
+	if(last)ret.second += (1LL<<(idx));
+	if(last&&limit)ret.first += (ret.second-a);
+	
+	return ret;
+}
+int main ()
+{
+    int a,b,c,d,n,m,k,l,p,q,r,t,x,y;
+    int cntr=0,sum=0,ans=1,check=0;
+    int Max= 0;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    scanf("%d",&t);
+
+    for(int cs = 1; cs <=t ; cs++){
+        scanf("%d",&n);
+        mem(vis,0);
+        mem(dp,0);
+        cntr = 0;
+        while(n){
+        	A[++cntr] = n % 2;
+        	n /= 2;
+        }
+        pair<ll,ll>Fol = calc(cntr,0,0);
+        printf("Case %d: %lld\n",cs,Fol.first);
+        for(int i = 0 ; i <= cntr; i++){
+        	B[i] = A [i ] = 0;
+        }
+
+    }
+
+    return 0;
+}
+
+
+// Problem: 1033 - Generating Palindromes
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1033
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+
+// Problem: Very Dirty String
+// Contest: Toph
+// URL: https://toph.co/p/very-dirty-string
+// Memory Limit: 512 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< int >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+string s,s1,s3,s4;
+int lookup[1005][1005] ;
+
+int lcs(int n, int m){
+	if(n == 0 || m == 0){
+		lookup[n][m] = 0;
+		return 0;
+	}
+	if(lookup[n][m] != -1)return lookup[n][m];
+	if(s[n-1] == s1[m-1]){
+		return lookup[n][m] = max(0,lcs(n-1,m-1)+1);
+	}
+	else {
+		return lookup[n][m] = max(lcs(n-1,m),lcs(n,m-1));
+	}
+	
+}
+
+
+int main ()
+{
+    fastIO();
+    int a,b,c,d,n,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    
+
+    cin >> t;
+    for(int k = 1; k <= t; ++k){
+	    cin >> s;
+	    n = s.size();
+	    s1 = s; m = n;
+	    reverse(s1.begin(),s1.end());
+	    mem(lookup,-1);
+		int ans = lcs(n,m);
+		ans = n - ans;
+		
+		printf("Case %d: %d\n",k,ans);
+		
+		
+	}
+    return 0;
+}
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   inf   INT_MAX
+#define   minf  -1*INT_MAX
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+int A[MAX];
+int B[MAX];
+int C[MAX];
+vector<int>V;
+vector<int>Ans;
+vector<pair<int, int>>VP;
+map<int, int>M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+int dp[1<<16];
+/*
+void dfs(int source, int par){
+	cnt[source] = 1;
+	
+	for(auto v:g[source]){
+		if(v==par)continue;
+		dfs(v,source);
+		cnt[source] += cnt[v];
+	}
+}
+*/
+int n;
+string s[17],s1,s3,s4;
+int calc(int k, int mask, int oMax[]){
+	if(k>=n)return 0;
+	int& ret = dp[mask];
+	if(ret != -1)return ret;
+	ret = INT_MAX;
+	for(int i = 0 ; i < n; i++){
+		int Max[n+2];
+		if(!(mask&(1<<i))){
+			for(int j = 0; j < n; j++){
+				int a = s[i][j]-48;
+				Max[j] = max(oMax[j],a);
+			}
+			int b = A[i] / oMax[i];
+			if(A[i] % oMax[i])b++;
+			ret = min(ret,calc(k+1,mask|(1<<i),Max) + b);
+		}
+	}
+	return ret;
+}
+
+int main ()
+{
+    fastIO();
+    int a,b,c,d,m,k,l,p,q,r,t,x,y;
+    int cntr=0,sum=0,ans=1,check=0;
+    int Max= 0;
+    
+
+    //cin>>n;
+    cin>>t;
+
+    while(t--){
+        cin>>n;
+        for(int i=0; i < n; i++){
+        	cin >> A[i];
+        }
+        for(int i=0; i < n; i++){
+        	cin >> s[i];
+        }
+        int oMax[n+2];
+        mem(dp,-1);
+        for(int i = 0; i < n ; i++){
+        	oMax[i] = 1;
+        }
+        ans = calc(0,0,oMax);
+        printf("Case %d: %d\n",++cntr,ans);
+
+    }
+
+    return 0;
+}
+
+
+// Problem: 1047 - Neighbor House
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1047
+// Memory Limit: 32 MB
+// Time Limit: 500 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<50
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+ll dp[30][4][4],n;
+
+ll rgb(int i, int source, int par){
+	
+	if(source == par) return LINF;
+	if(i>n)return 0;
+	ll& ret =  dp[i][par][source];
+	if(ret!=-1)return ret;
+	ll val = 1LL << 60;
+	val = min(val,rgb(i+1,0,source) + A[i]);
+	val = min(val,rgb(i+1,1,source) + B[i]);
+	val = min(val,rgb(i+1,2,source) + C[i]);
+	return ret = val;
+}
+
+int main ()
+{
+    fastIO();
+    ll a,b,c,d,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    cin>>t;
+
+    while(t--){
+        cin>>n;
+        for(int i=1; i <= n; i++){
+        	cin >> A[i] >> B[i] >> C[i];
+        }
+        mem(dp,-1);
+        ans = INT_MAX;
+        ans = min(ans,rgb(2,0,1) + A[1]);
+        ans = min(ans,rgb(2,1,2) + B[1]);
+        ans = min(ans,rgb(2,2,3) + C[1]);
+        printf("Case %lld: %lld\n",++cntr,ans);
+
+    }
+
+    return 0;
+}
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+ll dp[11][11],m,n;
+ll calc(int idx,int last){
+	if(idx==0){
+		return 1;
+	}
+	ll& ret = dp[idx][last];
+	if(ret!=-1)return ret;
+	ret = 0;
+	
+	for(int k = 0; k < m; k++){
+		if(idx == n){
+			last = A[k];
+		}
+		if(abs(last-A[k])<=2){
+			ret += calc(idx-1,A[k]);
+		}
+	}
+	return ret;
+}
+
+int main ()
+{
+    fastIO();
+    ll a,b,c,d,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    cin>>t;
+
+    while(t--){
+        cin>> m >> n;
+        for(int i = 0 ; i < m ; i++){
+        	cin >> A[i];
+        }
+        mem(dp,-1);
+        sort(A,A+m);
+        ans = calc(n,0);
+        printf("Case %lld: %lld\n",++cntr,ans);
+
+    }
+
+    return 0;
+}
+
+#include<bits/stdc++.h>
+using namespace std;
+
+bool compare (string a,string b){
+
+	return a>b;
+}
+
+struct trie{
+
+	trie* child[12];
+	//map<char,trie*>child;
+	bool check;
+	trie(){
+		check=false;
+		for(int i=0;i<12;i++)child[i]=NULL;
+	}
+};
+
+bool Insert (trie* head,string s){
+
+	trie* cur=head;
+
+	for(int i=0;i<s.size();i++){
+
+		int id=s[i]-'0';
+		//char id=s[i];
+
+		if(cur->child[id]==NULL){
+			cur->child[id]=new trie();
+		}
+		cur=cur->child[id];
+		if(i==s.size()-1){
+			if(cur->check)return 1;
+			else {
+				cur->check=true;
+				return 0;
+			}
+		}
+		cur->check=1;
+	}
+}
+
+//void del(trie* cur)
+//{
+//    for (auto it:cur->child)
+//        if (it.second){
+//            cur=it.second;
+//            del(cur);
+//        }
+//    cur->child.clear();
+//}
+
+void del(trie* cur)
+{
+    for (int i = 0; i < 12; i++)
+        if (cur->child[i])
+            del(cur->child[i]);
+    delete (cur);
+}
+
+int main(){
+
+	int t;
+	scanf("%d",&t);
+
+	for(int c=1;c<=t;c++){
+		int n;
+		scanf("%d",&n);
+		char s[106];
+		vector<string>V;
+		for(int i=0;i<n;i++){
+			scanf("%s",s);
+			string ns=s;
+			V.push_back(ns);
+		}
+		sort(V.begin(),V.end(),compare);
+		trie* root=new trie();int check=0;
+		for(int i=0;i<n;i++){
+			bool ans=Insert(root,V[i]);
+			if(ans){
+				printf("Case %d: NO\n",c);
+				check=1;break;
+			}
+
+		}
+		if(!check)printf("Case %d: YES\n",c);
+		del(root);
+	}
+
+}
+
+
+// Problem: 1151 - Snakes and Ladders
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1151
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+
+// Problem: 1030 - Discovering Gold
+// Contest: LightOJ
+// URL: http://lightoj.com/volume_showproblem.php?problem=1030
+// Memory Limit: 32 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+double dp[1000];
+bool vis[106];
+int n;
+double calc(int i,int k){
+	//cout<<i<<" up "<<k<<endl;
+	if(i >= 100)return 0;
+	double& ret = dp[i];
+	if(dp[i]>0.00)return ret;
+	vis[i] = 1; double ret1 = 0.0;
+	
+	int limit = min(6,100 - i);
+	//cout<<limit<<endl;
+	for(int j = 1; j <= 6; j++){
+		ret1 += calc(A[i+j],j) + 1;
+		//cout<<i<<" "<<i+j<<" "<<ret<<endl;
+	}
+	ret = ret1 / (double)limit;
+	//cout<<i<<" outsie "<<ret<<endl;
+	return ret;
+}
+
+int main ()
+{
+    ll a,b,c,d,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+   	scanf("%lld",&t);
+   	
+   	for(int cs = 1; cs <= t; cs++){
+   		scanf("%d",&n);
+   		for(int i = 1; i <= 107; i++){
+   			A[i] = i;
+   		}
+   		for(int i = 0; i < n; i++){
+   			scanf("%lld %lld",&a,&b);
+   			if(a>b)A[a] = b;
+   			else A[a] = b;
+   		}
+   		
+   		mem(vis,0);
+   		mem(dp,0);
+   		cout<<endl<<endl;
+   		double res = calc(1,0);
+   		printf("Case %d: %.10lf\n",cs,res);
+   		
+   	}
+
+    return 0;
+}
+
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+ll Max;
+
+class trie{
+    public:
+    trie* children[5];
+    int prefix;
+    trie(){
+        prefix=0;
+        for(int i=0;i<5;i++)children[i]=NULL;
+    }
+};
+
+ll Insert(trie* head,string S){
+    trie* cur=head;ll ans;
+
+    for(int i=0;i<S.size();i++){
+        int id;
+        if(S[i]=='A')id=1;
+        if(S[i]=='T')id=2;
+        if(S[i]=='G')id=3;
+        if(S[i]=='C')id=0;
+        trie* node=cur->children[id];
+        if(!node){
+            trie* child=new trie();
+            cur->children[id]=child;
+        }
+        cur=cur->children[id];
+        cur->prefix++;
+        ans=(i+1)*cur->prefix;
+        Max=max(ans,Max);
+    }
+    return Max;
+}
+
+void del(trie* cur)
+{
+    for (int i = 0; i < 5; i++)
+        if (cur->children[i])
+            del(cur->children[i]);
+    delete (cur);
+}
+
+int main(){
+
+    ll T;
+    //cin>>T;
+    scanf("%lld",&T);
+
+    for(int k=1;k<=T;k++){
+
+        string S;
+        char s[56];
+        ll n,res=0;
+        Max=0;
+        trie* root=new trie();
+        scanf("%lld",&n);
+        for(int i=0;i<n;i++){
+            scanf("%s",s);
+            S=s;
+            res=max(res,Insert(root,S));
+        }
+        printf("Case %d: %lld\n",k,res);
+        del(root);
+    }
+
+}
+
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<int>createlps(string pattern){
+    vector<int>lps(pattern.size());
+    int index=0;
+    for(int i=1;i<pattern.size();){
+        if(pattern[i]==pattern[index])
+        {
+            lps[i]=index+1;
+            i++,index++;
+        }
+        else {
+            if(index!=0){index=lps[index-1];}
+            else {lps[i]=0;i++;}
+        }
+    }
+    return lps;
+}
+
+int kmp(string text,string pattern){
+
+    vector<int>lps=createlps(pattern);
+    int i=0,j=0,Counter=0;
+    for(auto it:lps)cout<<it<<" ";cout<<endl;
+
+    while(i<text.size()){
+        if(text[i]==pattern[j]){
+            i++,j++;
+        }
+        else {
+            if(j!=0)j=lps[j-1];
+            else j=0,i++;
+        }
+        if(j==pattern.size())Counter++;
+    }
+    return Counter;
+}
+
+int main(){
+
+    int n;
+    scanf("%d",&n);
+    for(int i=1;i<=n;i++){
+        char s[1000006];
+        char s1[1000006];
+
+        scanf("%s %s",s,s1);
+        string text,pattern;
+        text=s;pattern=s1;
+        int ans=kmp(text,pattern);
+        printf("Case %d: %d\n",i,ans);
+
+    }
+
+    return 0;
+}
+
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<int>createlps(string pattern){
+    vector<int>lps(pattern.size());
+    int index=0;
+
+    for(int i=1;i<pattern.size();){
+        if(pattern[i]==pattern[index]){
+            lps[i]=index+1;
+            index++;i++;
+        }
+        else {
+            if(index!=0){
+                 index=lps[index-1];
+            }
+            else {lps[i]=0;i++;}
+        }
+    }
+    return lps;
+}
+
+int Count(string text,string pattern){
+    int i=0,j=0;int cnt=0;
+    vector<int>lps=createlps(pattern);
+    while(i<text.size()){
+        if(pattern[j]==text[i]){
+            cnt++;i++;j++;
+        }
+        else {
+            if(j==0){
+                i++;
+            }
+            else {j=lps[j-1];cnt=0;}
+        }
+    }
+    return j;
+}
+
+int main(){
+
+    int n;
+    scanf("%d",&n);
+
+    for(int i=1;i<=n;i++){
+        char s[1000006];
+        scanf("%s",s);
+        int len=strlen(s);
+        string S;S=s;
+        string rev=s;
+        reverse(rev.begin(),rev.end());
+        int cnt=Count(S,rev);
+        int ans=len+(len-cnt);
+        printf("Case %d: %d\n",i,ans);
+    }
+
+}
+
+
+// Problem: All Possible Increasing Subsequences
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/all-possible-inc-subseq
+// Memory Limit: 64 MB
+// Time Limit: 3000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<62
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+/*
+ll sti(string a,int base=10)
+{
+	ll k=0;
+	for (int i=0;i<(int)a.size();++i)
+	{
+		k*=base;
+		k+=a[i]-'0';
+	}
+	return k;
+}
+ 
+/*
+/*
+ll bin_pow(ll o, ll s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    ll d = bin_pow(o, s/2);
+    d = (d * 1ll * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+*/
+
+template<class T>
+inline T in()
+{
+    register char c=0;
+    register T num=0;
+    bool n=false;
+    while(c<33)c=getchar();
+    while(c>33){
+        if(c=='-')
+            n=true;
+        else num=num*10+c-'0';
+        c=getchar();
+    }
+    return n?-num:num;
+}
+const ll mod = 1000000007;
+
+ll BIT[200006], n;
+struct FT{
+    int n;
+    FT(int _n){
+        n = _n;
+        mem(BIT, 0);
+    }
+    void update(ll x, ll delta){
+          for(; x <= n; x += x&-x) BIT[x] = (BIT[x] + delta) % mod;
+    }
+    ll query(ll x, ll sum = 0){
+         for(; x > 0; x -= x&-x) sum = (sum + BIT[x]) % mod;
+         return sum;
+    }
+};
+
+int main ()
+{
+    
+    ll a,b,c,d,n,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    //scanf("%lld", &t);
+    t = in<int>();
+    
+    while(t--){
+        //scanf("%lld", &n);
+        n = in<int>();
+        V.clear();
+        for(int i = 1; i <= n; i ++){
+            //scanf("%lld", &A[i]);
+            A[i] = in<int>();
+            V.pb(A[i]);
+        }
+        sort(V.begin(), V.end());
+        V.resize(unique(V.begin(), V.end())- V.begin());
+        for(int i = 1; i <= n; i++){
+            int idx = lower_bound(V.begin(), V.end(), A[i]) - V.begin() + 1;
+            A[i] = idx;
+        }
+        sum = 0;
+        FT ft(n);
+        for(int i = 1; i <= n;i++){
+            if(A[i] == 1){
+                ft.update(A[i], 1);
+                sum += 1; sum %= mod;
+            }
+            else {
+                a = ft.query(A[i] - 1);++a;
+                ft.update(A[i], a);
+                sum = (sum + a) % mod ;
+            }
+        }
+        printf("Case %lld: %lld\n",++cntr, sum);
+
+    }
+    /* 
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return 0;
+}
+
+
+// Problem: A Secret Mission
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/a-secret-mission
+// Memory Limit: 64 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<62
+#define   ll     long long
+#define   LN    20
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+struct edge{
+    int U,V,W;
+    edge(int a,int b,int c){
+        U=a; V=b; W=c;}
+};
+vector <edge> Edges;
+bool sourav(edge a,edge b){
+    return a.W<b.W;
+}
+int Parent[200005], Max, pa[20][100000], occ[200005];
+int depth[MAX], value[MAX], minn[20][100000];
+vector<int> G[100000];
+void INIT(int n){
+    for(int i=0;i<=n;i++) Parent[i]=i;
+}
+int Find(int r){
+    if(r==Parent[r]) return r;
+    else return Parent[r] = Find(Parent[r]);
+}
+
+int Kruskal(int E)
+{ 
+    sort(Edges.begin(),Edges.end(),sourav);
+    int cntr  = 0;
+    for(int i = 0; i < E; i++){
+        int X = Edges[i].U; int Y = Edges[i].V; int Cost = Edges[i].W;
+        int PX = Find(X); int PY = Find(Y); 
+        if(PX!=PY){
+            Parent[PX]=PY;
+            G[X].pb(Y);
+            G[Y].pb(X);
+            Max = max(Max, X);
+            A[cntr] = X;
+            B[cntr] = Y;
+            C[cntr] = Cost;
+            cntr++;
+        }
+    }
+    return cntr;
+}
+void dfs(int cur, int prev = -1, int _depth = 0) {
+	pa[0][cur] = prev;
+	depth[cur] = _depth;
+	for(int i=0; i<G[cur].size(); i++){
+		if(G[cur][i] != prev) {
+			dfs(G[cur][i], cur, _depth + 1);
+		}
+	}
+}
+void dfs1(int cur, int prev = -1) {
+	minn[0][cur] = value[cur]; 
+	//cout << value[cur] << endl;
+	for(int i=0; i<G[cur].size(); i++){
+		if(G[cur][i] != prev) {
+			dfs1(G[cur][i], cur);
+		}
+	}
+}
+
+void build(int n){
+    for(int i=1; i<=LN; i++){
+		for(int j=0; j<n; j++){
+			if(pa[i-1][j] != -1){
+				pa[i][j] = pa[i-1][pa[i-1][j]];
+				minn[i][j] = max(minn[i - 1][j], minn[i-1][pa[i-1][j]]);
+			}
+		}
+	}
+}
+int query(int u, int v) {
+	if(depth[u] < depth[v]) swap(u,v);
+	int diff = depth[u] - depth[v];
+	int Min = 0;
+	for(int i=0; i < LN; i++){ 
+	    if((diff >> i)&1){
+	        Min = max(Min, minn[i][u]);//1 << i
+	        u = pa[i][u];
+	    }
+	}
+	if(u == v) return Min;
+	for(int i=LN-1; i>=0; i--) {
+    	if(pa[i][u] != pa[i][v]) {
+    	    Min = max(minn[i][u], Min);
+    	    Min = max(minn[i][v], Min);
+    		u = pa[i][u];
+    		v = pa[i][v];
+    	}
+    }
+    Min = max(Min, minn[0][u]);
+    Min = max(Min, minn[0][v]);
+	return (int)Min;
+}
+
+int main ()
+{
+    ll a,b,c,d,n,m,k,l,p,q,r,t,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    ll Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    scanf("%lld", &t);
+    while(t--){
+        scanf("%lld %lld", &n, &m);
+        INIT(n); Max = 0;
+        for(int i = 0; i < 20; i++){
+            for(int j = 0; j < 100000; j++){
+                minn[i][j] = 0;
+                pa[i][j] = -1;
+                value[i] = 0;
+            }
+        }
+        cntr = 0;
+    	for(int i = 0; i < n; i++){
+    	    G[i].clear();
+    	    depth[i] = 0;
+    	    occ[i] = 0;
+    	}
+        for(int i = 0; i < m; i++){
+            scanf("%lld %lld %lld", &A[i], &B[i], &C[i]);
+            Edges.pb(edge(--A[i],--B[i],C[i]));
+        }
+        cntr = Kruskal(m);
+        Edges.clear();
+        dfs(Max);
+        value[Max] = 0;
+        
+        for(int i = 0; i < cntr; i++){
+            
+            if(depth[A[i]] > depth[B[i]]){
+                value[A[i]] = C[i];
+            }
+            else value[B[i]] = C[i];
+        }
+        dfs1(Max);
+        
+        build(n);
+        printf("Case %lld:\n", ++cnt);
+        scanf("%lld", &q);
+        for(int cs = 1; cs <= q; cs++){
+            scanf("%lld %lld", &a, &b);
+            printf("%d\n", query(--a, --b));
+        }
+        
+    }
+    /* 
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return 0;
+}
+
+
+// Problem: Bank Robbery
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/bank-robbery
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+
+    while(t--){
+        cin >> n;
+        cout <<"Case "<<++cnt<<": ";
+        a = n / 9LL;
+        b = n % 9LL;
+        if(b == 0){
+            cout << 10LL * a -1 <<" "<<10LL * a << endl;
+        }
+        else{
+            cout << 10LL * a + b << endl;
+        }
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: Batman
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/batman
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include<bits/stdc++.h>
+using namespace std;
+
+string s1, s2, s3;
+int n, m, k;
+int dp[51][51][51];
+
+int calc(int i, int j, int l){
+    if(i == n or j== m or l == k){
+        return 0;
+    }
+    int &ret = dp[i][j][l];
+    if(ret != -1)return ret;
+    ret = 0;
+    if(s1[i] == s2[j] and s2[j] == s3[l]){
+        ret = calc(i + 1, j + 1, l + 1) + 1;
+    }
+    else{
+        for(int mask = 1; mask < 8; mask++){
+            int ii = i, jj = j, ll = l;
+            if(mask & (1 << 0))ii++;
+            if(mask & (1 << 1))jj++;
+            if(mask & (1 << 2))ll++;
+            ret = max(ret , calc(ii, jj, ll));
+        }
+    }
+    return ret;
+    
+}
+
+int main(){
+    int test;
+    cin >> test;
+    for(int cs = 1; cs <= test; cs++){
+        cin >> s1 >> s2 >> s3;
+        memset(dp, -1, sizeof(dp));
+        n = s1.size();
+        m = s2.size();
+        k = s3.size();
+        int ans = calc(0, 0, 0);
+        cout <<"Case "<<cs<<": "<< ans <<"\n";
+    }
+    return 0;
+}
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+int dist[MAX][5];
+int vis[MAX][5];
+vector<int> g[MAX];
+
+void bfs(int source, int root){
+    vis[source][root] = 1;
+    queue<int> Q;
+    Q.push(source);
+    dist[source][root] = 0;
+    while(!Q.empty()){
+        int u = Q.front();
+        Q.pop();
+        for(auto v: g[u]){
+            if(vis[v][root])continue;
+            vis[v][root] = 1;
+            Q.push(v);
+            dist[v][root] = dist[u][root] + 1;
+        }
+    }
+}
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+
+    while(t--){
+        cin >> n >> m;
+        for(int i = 0; i < m; i++){
+            cin >> a >> b;
+            g[a].pb(b);
+            g[b].pb(a);
+        }
+        cin >> a >> b;
+        bfs(a, 1);
+        bfs(b, 2);
+        
+        Max = 0;
+        for(int i = 0; i < n; i++){
+            a = dist[i][1] + dist[i][2];
+            Max = max(a, Max);
+        }
+        cout <<"Case "<<++cnt<<": "<< Max << endl;
+        for(int i = 0; i <= n; i++){
+            g[i].clear();
+            vis[i][1] = vis[i][2] = vis[i][3] = 0;
+            dist[i][1] = dist[i][2] = dist[i][3] = 0;
+        }
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: Dice (III)
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/dice-iii
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+
+    while(t--){
+        cin >> n;
+        double res = 1.0; cntr = 1;
+        for(int i = n; i >= 2; i--){
+            a = n - cntr;
+            b = n - a; cntr++;
+            res += (n*1.0) / (b * 1.0);
+        }
+        cout.precision(10);
+        cout <<"Case "<<++cnt <<": "<<fixed<<res<<"\n";
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: Fantasy of a Summation
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/fantasy-of-a-summation
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+int mod;
+
+int add(int a, int b) {a += b; if(a >= mod) a -= mod; return a;}
+int sub(int a, int b) {a -= b; if( a < 0) a += mod; return a;}
+int mul(int a, int b) {
+	return int(a * 1ll * b % mod);
+}
+
+int bin_pow(int o, int s) {
+    if (s == 0) return 1;
+    if (s == 1) return o % mod;
+    int d = bin_pow(o, s/2);
+    d = (d * 1LL * d) % mod;
+    if (s % 2 == 1)
+        d = (d * 1ll * o) % mod;
+    return d;
+}
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+
+    while(t--){
+        cin >> n >> k >> mod;
+        sum = 0;
+        for(int i = 0; i < n; i++){
+            cin >> A[i];
+            sum += A[i];
+            sum %= mod;
+        }
+        ans = bin_pow(n, k - 1);
+        ans = (k * sum * ans) % mod;
+        cout <<"Case "<<++cnt<<": "<<ans << endl;
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: Finding LCM
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/finding-lcm
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+ll A[MAX], B[MAX], C[MAX];
+
+vector<ll>prime;
+bool mark[MAX1];
+ll N = 1e6;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+    seive();
+    cin >> t;
+
+    while(t--){
+        cin >> a >> b >> n;
+        unordered_map<ll, int> ma, mb, mn; p = a; q = b; r = n;
+        vector<ll> v; ans = 1LL;
+        for(int i = 0; prime[i] * 1LL * prime[i] <= p; i++){
+            if(p % prime[i])continue;
+            cntr = 0;
+            while(p % prime[i] == 0){
+                cntr++; p /= prime[i];
+            }
+            v.pb(prime[i]);
+            ma[prime[i]] = cntr;
+        }
+        if(p != 1){
+            v.pb(p);
+            ma[p] = 1;
+        } 
+        for(int i = 0; prime[i] * 1LL * prime[i] <= q; i++){
+            if(q % prime[i])continue;
+            cntr = 0;
+            while(q % prime[i] == 0){
+                cntr++; q /= prime[i];
+            }
+            v.pb(prime[i]);
+            mb[prime[i]] = cntr;
+        }
+        if(q != 1){
+            v.pb(q);
+            mb[q] = 1;
+        }
+        for(int i = 0; prime[i] * 1LL * prime[i] <= r; i++){
+            if(r % prime[i])continue;
+            cntr = 0;
+            while(r % prime[i] == 0){
+                cntr++; r /= prime[i];
+            }
+            v.pb(prime[i]);
+            mn[prime[i]] = cntr;
+        }
+        if(r != 1){
+            v.pb(r);
+            mn[r] = 1;
+        }
+        check = 0; 
+        sort(v.begin(), v.end());
+        v.resize(unique(v.begin(), v.end()) - v.begin());
+        for(int i = 0; i < v.size(); i++){
+            a = v[i];
+            if(ma[a] > mn[a] or mb[a] > mn[a]){
+                check = 1; break;
+            }
+            if(ma[a] == mn[a])continue;
+            if(mb[a] == mn[a])continue;
+            //cout << a << endl;
+                for(int j = 1; j <= mn[a]; j++){
+                    ans *= a;
+                }
+            
+        }s
+        if(check) cout <<"Case "<<++cnt<<": impossible" << endl;
+        else cout <<"Case "<<++cnt <<": "<< ans << endl;
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: Gaaner Koli
+// Contest: Toph
+// URL: https://toph.co/p/gaaner-koli
+// Memory Limit: 512 MB
+// Time Limit: 4000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   inf   INT_MAX
+#define   minf  -1*INT_MAX
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+int A[MAX];
+int B[MAX];
+int C[MAX];
+vector<int>V;
+vector<int>Ans;
+vector<pair<int, int>>VP;
+map<int, int>M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+int taken[27],firstch[27];
+int particular[24][27],n;
+char ch[100006];
+int dp[27][1<<22];
+
+bool winorloss(int k,int mask,int ch){
+	if(k == n)return 1;
+	int& ret= dp[ch][mask];
+	if(ret != -1)return 1^ret;
+	ret = 0;
+	for(int i = 0; i < n; i++){
+		if((!(mask&(1<<i))) and firstch[i] == ch){
+			for(int j = 0; j < 26; j++){
+				if(!particular[i][j])continue;
+				ret = winorloss(k+1,mask|(1<<i),j);
+				if(ret)return 0;
+			}
+		}
+	}
+	return 1^ret;
+}
+int main ()
+{
+    int a,b,c,d,m,k,l,p,q,r,t,x,y;
+    int cntr=0,sum=0,ans=1,check=0;
+    int Max= 0;
+    string s,s1,s3,s4;
+
+    //cin>>n;
+    scanf("%d",&t);
+
+    while(t--){
+    	scanf("%d",&n);
+    	
+    	for(int i = 0; i < 27; i++){
+    		firstch[i] = -1;
+    		taken[i]=0;
+    	}
+    	mem(particular,0);
+    	mem(dp,-1);
+    	for(int i = 0; i < n; i++){
+    		scanf("%s",ch);
+    		for(int j = 0; ch[j]; ++j){
+    			particular[i][ch[j]-'a']++;
+    		}
+    		firstch[i] = ch[0] - 'a';
+    		taken[ch[0] - 'a'] = 1;
+    	}
+    	ans = 1;
+    	for(int i = 0 ; i < 26; i++){
+    		ans = 1;
+    		if(taken[i]){
+    			ans &= winorloss(0,0,i);
+    			if(!ans)break;
+    		}
+    	}
+    	if(ans==1)printf("Case %d: NO\n",++cntr);
+    	else printf("Case %d: YES\n",++cntr);
+		
+    }
+
+    return 0;
+}
+
+
+// Author: Saurov Chandra Biswas
+// Institution: University of Barishal
+// Problem: Going Together
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/going-together
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// 
+// Powered by CP Editor (https://cpeditor.org)
+
+#include<bits/stdc++.h>
+using namespace std;
+
+int vis[11][11][11][11][11][11];
+int dx[] = {1, 0, -1, 0};
+int dy[] = {0, 1, 0, -1};
+
+struct Tuple {
+	int fx, fy, sx, sy, tx, ty, cost;
+	Tuple (int a, int b, int c, int d, int e, int f, int g) {
+		fx = a; fy = b; sx = c; sy = d; tx = e; ty = f; cost = g;
+	}
+	Tuple () {}
+};
+
+void print(Tuple t) {
+	cout << t.fx <<" " << t.fy <<" " << t.sx << " " << t.sy << " " << t.tx <<" " << t.ty << endl;
+	cout << t.cost << endl;
+	cout << endl;
+}
+
+int main() {
+	int test;
+	scanf("%d", &test);
+	for (int cs = 1; cs <= test; ++cs) {
+		int n, fx, fy, sx, sy, tx, ty, cost, ans = -1;
+		printf("Case %d: ", cs);
+		scanf("%d", &n);
+		char matrix[n + 1][n + 1]; 
+		vector<pair<int, int>> dests, sources;
+		for (int i = 0; i < n; ++i) {
+			char s[12]; scanf("%s", s);
+			for (int  j = 0; j < n; ++j) {
+				matrix[i][j] = s[j];
+				if (matrix[i][j] == 'A' or matrix[i][j] == 'B' or matrix[i][j] == 'C') sources.push_back({i, j});
+				if (matrix[i][j] == 'X') dests.push_back({i, j});
+			}
+		}
+		sort(dests.begin(), dests.end());
+		memset(vis, 0, sizeof vis);
+		fx = sources[0].first; fy = sources[0].second;
+		sx = sources[1].first; sy = sources[1].second; 
+		tx = sources[2].first; ty = sources[2].second;
+		
+		Tuple tuple; tuple.cost = 0; 
+		tuple.fx = fx; tuple.fy = fy;
+		tuple.sx = sx; tuple.sy = sy;
+		tuple.tx = tx; tuple.ty = ty;
+		
+		queue<Tuple> Q; Q.push(tuple);
+		vis[fx][fy][sx][sy][tx][ty] = 1;
+		
+		while (!Q.empty()) {
+			Tuple u = Q.front(); Q.pop();
+			//cout <<"u" << endl;
+			//print(u);
+			vector<pair<int, int>> temp;
+			temp.push_back({u.fx, u.fy});
+			temp.push_back({u.sx, u.sy});
+			temp.push_back({u.tx, u.ty});
+			
+			sort(temp.begin(), temp.end());
+			if(temp == dests) {
+				ans = u.cost; break;
+			}
+			
+			for (int i = 0; i < 4; ++i) {
+				fx = u.fx + dx[i]; fy = u.fy + dy[i];
+				sx = u.sx + dx[i]; sy = u.sy + dy[i];
+				tx = u.tx + dx[i]; ty = u.ty + dy[i];
+				
+				if (matrix[fx][fy] == '#' or fx < 0 or fy < 0 or fx == n or fy == n) fx -= dx[i], fy -= dy[i];
+				if (matrix[sx][sy] == '#' or sx < 0 or sy < 0 or sx == n or sy == n) sx -= dx[i], sy -= dy[i];
+				if (matrix[tx][ty] == '#' or tx < 0 or ty < 0 or tx == n or ty == n) tx -= dx[i], ty -= dy[i];
+				
+				if ((u.fx == fx and u.fy == fy) and ((fx == sx and fy == sy) or (fx == tx and fy == ty))) {
+					if (fx == sx and fy == sy) sx = u.sx, sy = u.sy;
+					if (fx == tx and fy == ty) tx = u.tx, ty = u.ty;
+				}
+				else if ((u.sx == sx and u.sy == sy) and ((fx == sx and fy == sy) or (sx == tx and sy == ty))) {
+					if (fx == sx and fy == sy) fx = u.fx, fy = u.fy;
+					if (sx == tx and sy == ty) tx = u.tx, ty = u.ty;
+				}
+				else if ((u.tx == tx and u.ty == ty) and ((fx == tx and fy == ty) or (sx == tx and sy == ty))){
+					if (tx == sx and ty == sy) sx = u.sx, sy = u.sy;
+					if (fx == tx and fy == ty) fx = u.fx, fy = u.fy;
+				}
+				if (vis[fx][fy][sx][sy][tx][ty] == 1) continue;
+	
+				vis[fx][fy][sx][sy][tx][ty] = 1;
+				Tuple t = Tuple(fx, fy, sx, sy, tx, ty, u.cost + 1);
+				Q.push(t);
+			}
+		}
+		
+		if (ans == -1) printf("trapped\n");
+		else printf("%d\n", ans);
+	}
+	
+}
+
+// Problem: Greatest Parent
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/greatest-parent
+// Memory Limit: 64 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<62
+#define   ll     int
+#define   LN    20
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+struct edge{
+    int U,V,W;
+    edge(int a,int b,int c){
+        U=a; V=b; W=c;}
+};
+vector <edge> Edges;
+bool sourav(edge a,edge b){
+    return a.W<b.W;
+}
+int Max, pa[20][100007];
+int depth[MAX], value[MAX], minn[20][100007];
+vector<int> G[100007];
+
+void dfs(int cur, int prev = -1, int _depth = 0) {
+	pa[0][cur] = prev;
+	depth[cur] = _depth;
+	minn[0][cur] = B[(prev == -1)?0:prev];
+	for(int i=0; i<G[cur].size(); i++){
+		if(G[cur][i] != prev) {
+			dfs(G[cur][i], cur, _depth + 1);
+		}
+	}
+}
+
+void build(int n){
+    for(int i=1; i<=LN; i++){
+		for(int j=0; j<n; j++){
+			if(pa[i-1][j] != -1){
+				pa[i][j] = pa[i-1][pa[i-1][j]];
+				minn[i][j] = min(minn[i - 1][j], minn[i-1][pa[i-1][j]]);
+			}
+		}
+	}
+}
+pair<int, int> query(int u, int diff) {
+	int Min = B[u];
+	for(int i=0; i < LN; i++){ 
+	    if((diff >> i)&1){
+	        Min = min(Min, minn[i][u]);
+	        u = pa[i][u];
+	    }
+	}
+	return  {u, Min};
+}
+
+int Binary_search(int u,int pos, int val){
+    int lo = 0, hi = pos; 
+    int mid, node = u, v, Min ;
+    while(lo <= hi){
+        mid = (lo + hi) / 2;
+        pair<int, int> pi = query(u, depth[u]-mid);
+        if((pi.second) >= val){
+            node = pi.first;
+            u = pa[0][pi.first];
+            hi = mid - 1;
+        }
+        else {
+            lo = mid + 1;
+        }
+    }
+    return node;
+}
+
+int main ()
+{
+    ll a,b,c,d,n,m,k,l,p,q,r,t,y;
+    ll cnt=0,cntr=0,sum=0,ans=1,check=0;
+    
+    string s,s1,s3,s4;
+
+    scanf("%d", &t);
+    while(t--){
+        scanf("%d %d", &n, &q);
+        for(int i = 0; i < 20; i++){
+            for(int j = 0; j < 100007; j++){
+                minn[i][j] = INT_MAX;
+                pa[i][j] = -1;
+                value[i] = 0;
+            }
+        }
+        cntr = 0;
+    	for(int i = 0; i < n; i++){
+    	    G[i].clear();
+    	    depth[i] = 0;
+    	}
+    	B[0] = 1;
+        for(int i = 1; i < n; i++){
+            scanf("%d %d", &A[i], &B[i]);
+            G[i].pb(A[i]);
+            G[A[i]].pb(i);
+        }
+        dfs(0);
+        build(n);
+        printf("Case %d:\n", ++cnt);
+        for(int cs = 1; cs <= q; cs++){
+            scanf("%d %d", &a, &b);
+            printf("%d\n", Binary_search(a, depth[a], b));
+        }
+        
+    }
+    /* 
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return 0;
+}
+
+
+// Problem: Harmonic Number (II)
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/harmonic-number-ii
+// Memory Limit: 64 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+void sumofnbyi(ll n){
+    ll ans = 0, minVal; // use 1LL * i * i if necessary
+    for (int i = 1; i *1LL* i <= n; i++) {
+        ll lf = n / (i + 1), rg = n / i;
+        if (lf >= rg) continue;
+        minVal = lf; // interval (lf, rg]
+        ans += (i * (rg - lf));
+    }
+    for(int i = 1; i < minVal + 1; i++) {
+        ans += n / i;
+    }
+    cout << ans << endl;
+
+}
+
+int main(){
+    int n;
+    int t;
+    cin >> t;
+    for(int i = 1; i <= t; i++){
+        cin >> n;
+        cout <<"Case "<<i<<": ";
+        sumofnbyi(n);
+    }
+    return 0;
+}
+#include <bits/stdc++.h>
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+//#pragma GCC diagnostic ignored "-Wformat"
+
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   LINF   1LL<<63
+#define   ll     long long
+#define   ull    unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   all(x) x.begin(),x.end()
+#define   lcm(a, b)        ((a)*((b)/gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+#define buga  cout<<1<<endl
+#define bugb  cout<<2<<endl
+#define bugc  cout<<3<<endl
+#define bugd  cout<<4<<endl
+#define buge  cout<<5<<endl
+
+void fastIO (){ios_base::sync_with_stdio(false);cin.tie(0); cout.precision(20);}
+
+ll A[MAX];
+ll B[MAX];
+ll C[MAX];
+vector< ll >V;
+vector< ll >Ans;
+vector< pair<ll,ll> >VP;
+map< ll,ll >M;
+vector<ll>prime;
+bool mark[MAX1];
+ll N=1e7;
+void seive (){int limit = sqrt(N*1.0)+2;mark[1]=1;for (int i=4;i<=N;i+=2)mark[i]=1;prime.push_back(2);for (int i=3;i<=N;i+=2){if(!mark[i]){prime.push_back(i);if(i<=limit){for (int j=i*i;j<=N;j+=i*2)mark[j]=1;}}}}
+
+
+pair<ll,ll>dp[11][11][2][2];
+bool vis[12][12][2][2];
+ll n;
+pair<ll,ll> calc(int idx,int tight, int last,int taken){
+	if( idx == 0){
+		if(last == 0) return {1,1}; 
+		else return {1,0};
+	}	
+	pair<ll,ll>& ret = dp[idx][last][tight][taken];
+	if(vis[idx][last][tight][taken ])return ret;
+	vis[idx][last][tight][taken] = 1;
+	ret.first = 0; ret.second = 0;
+	int limit = (tight==0)?A[idx]:9;
+	for(int k = 0; k <= limit; k++){
+		pair<ll,ll>p;
+		p = calc(idx-1,tight|(A[idx] > k),k,taken|(k>0)?1:0);
+		ret.first += p.first;
+		ret.second += p.second;
+	}
+	if(last == 0 && taken)ret.second += ret.first;
+	return ret;
+}
+int main ()
+{
+    fastIO();
+    ll a,b,c,d,m,k,l,p,q,r,t,x,y;
+    ll cnt=0,cntr=0,check=0;
+    ll Max= 0,Max1=-1e18+1,Min=LINF;
+    string s,s1,s3,s4;
+
+    cin>>t;
+
+    while(t--){
+        cin>>m>>n;
+        pair<ll,ll>ans,sum; mem(vis,0);
+        cntr = 0;
+        cnt = 0; 
+        m--;
+    	if(n==0)A[++cntr] = 0;
+        while(n){
+        	A[++cntr] = n % 10; n /= 10;
+        }
+        n = cntr; 
+    	ans = calc(n,0,4,0);mem(vis,0);
+	   if(m == 0)A[++cnt] = 0;
+	    while(m&&m>0){
+	        A[++cnt] = m % 10;
+	        m /= 10;
+	     }
+	    n =  cnt;
+		sum = calc(n,0,9,0);
+		if(m == -1)sum.second = 0;
+		printf("Case %lld: %lld\n",++Max,ans.second-sum.second);
+    }
+
+    return 0;
+}
+
+
+// Problem: LCM Extreme
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/lcm-extreme
+// Memory Limit: 64 MB
+// Time Limit: 3000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     unsigned long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    500006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());	
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+const int N = 3000006;
+vector<int> phi(N + 2);
+ll phisum[N + 2];
+ll cumsum[N + 2];
+
+void phidiv() {
+    phi[0] = 0;
+    phi[1] = 1;
+    for (int i = 2; i <= N; i++)
+        phi[i] = i - 1;
+
+    for (int i = 2; i <= N; i++)
+        for (int j = 2 * i; j <= N; j += i)
+              phi[j] -= phi[i];
+}
+
+void divisors(){
+    for(int i = 1; i <= N; i++){
+        for(int j = i; j <= N; j += i){
+            phisum[j] += (ll)i * phi[i];
+        }
+    }
+}
+
+void precompute(){
+    for(ll i = 1; i <= N; i++){
+        ll a = ((phisum[i] + 1)) / 2ULL;
+        a *= (ll)i;
+        cumsum[i] = cumsum[i - 1] + a;
+        cumsum[i] -= i;
+    }
+}
+
+int main ()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    
+    ll a, b, c, d, n, m, k, l, p, q, r, t, x, y;
+    ll cnt = 0, cntr = 0, sum = 0,ans = 1, check = 0;
+    ll Max = 0, Min = 2e18;
+    string s, s1, s2;
+
+    cin >> t;
+    phidiv();
+    divisors();
+    precompute();
+
+    while(t--){
+        cin >> n;
+        ll Ans = cumsum[n];
+        cout <<"Case "<<++cnt<<": "<< Ans << endl;
+
+    }
+    /* 
+        precedence : ! * / % + - << >> 
+        < > <= >= == != & ^ | && ||
+        always check the limit and make sure that is correct.
+        lcm of first 40 numbers  can be calculated.
+        sqrt of 10^9 is 31622.
+        always usee 1LL while doing binary operations.
+    */
+
+    return (0 - 0 + 1 -  1 * 1);
+}
+
+
+// Problem: A Wedding Party
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/a-wedding-party
+// Memory Limit: 64 MB
+// Time Limit: 3000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#include<bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define MAX 5000
+#define pb push_back
+#define mp make_pair
+#define   mem(a,v)   memset(a,v,sizeof(a))
+
+struct edge{
+    int vertex, weight;
+    edge(int a, int b){
+        vertex = a; weight = b;
+    }
+};
+struct node{
+    int vertex, cost;
+    node(int a, int b){
+        vertex = a;
+        cost = b;
+    }
+    bool operator<(node other)const{
+        return cost > other.cost;
+    }
+};
+
+vector<int> adj[MAX], adj_rev[MAX];
+vector<bool> used;
+vector<int> order, component, roots, root_nodes;
+vector<vector<int>> adj_scc(MAX);
+int vis[MAX], A[MAX], B[MAX], shop[MAX], D[MAX];
+int Size[MAX], ans[MAX];
+int n, m, x, y, k, w;
+vector<edge> g[MAX];
+priority_queue<node> pq;
+int dist[17][MAX];
+ll mxshop;
+
+void dfs1(int v) {
+    used[v] = true;
+
+    for (auto u : adj[v])
+        if (!used[u])
+            dfs1(u);
+
+    order.push_back(v);
+}
+
+void dfs2(int v) {
+    used[v] = true;
+    component.push_back(v);
+
+    for (auto u : adj_rev[v])
+        if (!used[u])
+            dfs2(u);
+}
+
+ll dfs3(int source){
+    ll res = -INT_MAX;
+    for(auto v: adj_scc[source]){
+        
+        ll a = dfs3(v);
+        res = max(res, a + shop[source]);
+    }
+    if(source == roots[n - 1])return shop[source];
+    else return res;
+    
+}
+
+void Dijkstra(int source){
+    
+    for(int i = 0; i <= n; i++) dist[source][i] = INT_MAX;
+    pq.push(node(A[source], 0));
+    dist[source][A[source]] = 0;
+    
+    while(!pq.empty()){
+        
+        node u = pq.top(); pq.pop();
+	    if(u.cost != dist[source][u.vertex]) continue;
+	    for(auto v: g[u.vertex]){
+	        
+            if(dist[source][u.vertex] + v.weight < dist[source][v.vertex]){
+                dist[source][v.vertex] = dist[source][u.vertex] + v.weight;
+                pq.push(node(v.vertex, dist[source][v.vertex]));
+            }
+        }
+    }
+}
+
+ll dp[17][1 << 15];
+
+ll calc(int idx, int mask, int last){
+    if(idx == mxshop){
+        //cout << last <<" "<< mask <<" "<< dist[last][n - 1] << endl;
+        return dist[last][n - 1];
+    }
+    ll &ret = dp[last][mask];
+    if(ret != -1)return ret;
+    ret = INT_MAX;
+    for(int i = 0; i < k; i++){
+        if(mask & (1 << i))continue;
+        ll a = calc(idx + 1, mask | (1 << i), i);
+        ll b = (idx == 0)? D[A[i]]: dist[last][A[i]];\
+        ret = min(ret, a + b);
+    }
+    return ret;
+}
+
+int main() {
+    int tc; 
+    scanf("%d", &tc);
+    for(int cs = 1; cs <= tc; cs++){
+        scanf("%d %d %d", &n, &m, &k); 
+        printf("Case %d: ", cs);
+        order.clear();
+        root_nodes.clear();
+        mxshop = 0;
+        for(int i = 0; i < n; i++){
+            Size[i] = 0;
+            B[i] = 0;
+            adj_scc[i].clear();
+            adj[i].clear();
+            adj_rev[i].clear();
+            g[i].clear();
+        }
+        
+        for(int i = 0; i < k; i++){
+            scanf("%d", &A[i]);
+            B[A[i]] = 1;
+        }
+        for (int i = 0; i < m; i++) {
+            int a, b; scanf("%d %d %d", &a, &b, &w);
+            adj[a].push_back(b);
+            adj_rev[b].push_back(a);
+            g[a].pb(edge(b, w));
+        }
+    
+        used.assign(n, false);
+    
+        for (int i = 0; i < n; i++)
+            if (!used[i])
+                dfs1(i);
+        
+        used.assign(n, false);
+        reverse(order.begin(), order.end());
+        roots.assign(n, 0);
+        for (auto v : order){
+            if (!used[v]) {
+                dfs2 (v);
+                int root = component.front();
+                Size[root] = component.size(); int cntr = 0;
+                for (auto u : component) {roots[u] = root;  if(B[u])cntr++;}
+                root_nodes.push_back(root);
+                shop[root] = cntr;
+                component.clear();
+            }
+        }
+        
+        for (int v = 0; v < n; v++){
+            for (auto u : adj[v]) {
+                int root_v = roots[v], root_u = roots[u];
+        
+                if (root_u != root_v)
+                    adj_scc[root_v].push_back(root_u);
+            }
+        }
+        
+        int a = roots[0];
+        mxshop = dfs3(a);
+        
+        if(mxshop < 0){
+            printf("Impossible\n"); continue;
+        }
+        int c = A[0];
+        A[0] = 0;
+        Dijkstra(0);
+        A[0] = c;
+        for(int i = 0; i < n; i++){
+            D[i] = dist[0][i];
+        }
+        for(int i = 0; i < k; i++){
+            Dijkstra(i);
+        }
+        mem(dp, -1);
+        ll res = calc(0, 0, 0);
+        printf("%lld %lld\n", mxshop, res);
+    }
+}
+
+
+
+
+// Problem: New Traffic System
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/new-traffic-system
+// Memory Limit: 64 MB
+// Time Limit: 2000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    10006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+
+struct edge{
+    int vertex, weight, type;
+    edge(int a, int b, int c){
+        vertex = a; weight = b; type = c;
+    }
+};
+struct node{
+    int vertex, cost, newroad;
+    node(int a, int b, int c){
+        vertex = a;
+        cost = b;
+        newroad = c;
+    }
+    bool operator<(node other)const{
+        if(cost == other.cost)return newroad < other.newroad;
+        return cost > other.cost;
+    }
+};
+
+int n, m, x, y, w, k, d;
+vector<edge> g[MAX];
+priority_queue<node> pq;
+int dist[MAX][12];
+void Dijkstra(int source){
+    
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j <= d; j++){
+            dist[i][j] = INT_MAX;
+        }
+    }
+    pq.push(node(source, 0, 0));
+    dist[source][0] = 0;
+    
+    while(!pq.empty()){
+        
+        node u = pq.top(); pq.pop();
+	    if(u.cost != dist[u.vertex][u.newroad]) continue;
+	    for(auto v: g[u.vertex]){
+	        
+            if(dist[u.vertex][u.newroad] + v.weight < dist[v.vertex][u.newroad + v.type]){
+                dist[v.vertex][u.newroad + v.type] = dist[u.vertex][u.newroad] + v.weight;
+                pq.push(node(v.vertex, dist[v.vertex][u.newroad + v.type], u.newroad + v.type));
+                //parent[v.vertex] = u.vertex;
+            }
+        }
+    }
+}
+
+int main()
+{
+    int tc;
+    scanf("%d", &tc);
+    for(int cs = 1; cs <= tc; cs++){
+        scanf("%d %d %d %d", &n, &m, &k, &d); 
+        for(int i = 0; i < n; i++){
+            g[i].clear();
+        }
+        for(int i = 1; i <= m; i++){
+            scanf("%d %d %d", &x, &y, &w);
+            g[x].pb(edge(y, w, 0));
+            //g[y].pb(edge(x, w, 0));
+        }
+        
+        for(int i = 1; i <= k; i++){
+            scanf("%d %d %d", &x, &y, &w);
+            g[x].pb(edge(y, w, 1));
+            //g[y].pb(edge(x, w, 0));
+        }
+        Dijkstra(0);
+        int Min = INT_MAX;
+        for(int i = 0; i <= d; i++){
+            Min = min(Min, dist[n - 1][i]);
+        }
+        printf("Case %d: ", cs);
+        if(Min == INT_MAX)printf("Impossible\n");
+        else printf("%d\n", Min);
+    }
+}
+
+
+// Problem: Toll Management
+// Contest: LightOJ
+// URL: https://lightoj.com/problem/toll-management
+// Memory Limit: 64 MB
+// Time Limit: 1000 ms
+// Powered by CP Editor (https://github.com/cpeditor/cpeditor)
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+//#pragma GCC optimize ("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std ;
+
+#define   Pi     2*acos(0.0)
+#define   ll     long long
+#define   pb     push_back
+#define   mp     make_pair
+#define   MAX    10006
+#define   MAX1   10000008
+#define   mem(a,v)   memset(a,v,sizeof(a))
+#define   lcm(a, b)        ((a)*((b)/__gcd(a,b)))
+#define yes   cout<<"YES"<<endl
+#define no   cout<<"NO"<<endl
+
+template<class T> using oset=tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// order_of_key returns the 0 based position of a value
+// find_by_order returns a pointer pointing at the kth element 
+// also 0 indexed
+
+struct edge{
+    int vertex, weight;
+    edge(int a, int b){
+        vertex = a; weight = b;
+    }
+};
+struct node{
+    int vertex, cost;
+    node(int a, int b){
+        vertex = a;
+        cost = b;
+    }
+    bool operator<(node other)const{
+        return cost > other.cost;
+    }
+};
+
+int n, m, x, y, w, s, t , p;
+vector<edge> g[MAX], rev[MAX];
+ll dist[MAX], tmp[MAX];
+void Dijkstra(int source){
+    priority_queue<node> pq;
+    for(int i = 1; i <= n; i++){
+        dist[i] = INT_MAX;
+    }
+    pq.push(node(source, 0));
+    dist[source] = 0;
+    
+    while(!pq.empty()){
+        
+        node u = pq.top(); pq.pop();
+	    //if(u.cost != dist[u.vertex]) continue;
+	    for(auto v: g[u.vertex]){
+	        
+            if(dist[u.vertex] + v.weight < dist[v.vertex]){
+                dist[v.vertex] = dist[u.vertex] + v.weight;
+                pq.push(node(v.vertex, dist[v.vertex]));
+            }
+        }
+    }
+}
+
+void Dijkstra1(int source){
+    priority_queue<node> pq;
+    for(int i = 1; i <= n; i++){
+        dist[i] = INT_MAX;
+    }
+    pq.push(node(source, 0));
+    dist[source] = 0;
+    
+    while(!pq.empty()){
+        
+        node u = pq.top(); pq.pop();
+	    //if(u.cost != dist[u.vertex]) continue;
+	    for(auto v: rev[u.vertex]){
+	        
+            if(dist[u.vertex] + v.weight < dist[v.vertex]){
+                dist[v.vertex] = dist[u.vertex] + v.weight;
+                pq.push(node(v.vertex, dist[v.vertex]));
+            }
+        }
+    }
+}
+
+int main()
+{
+    int cs, test;
+    scanf("%d", &test);
+    for(cs = 1; cs <= test; cs++){
+        scanf("%d %d %d %d %d", &n, &m, &s, &t, &p);
+        vector<pair<int, pair<int, int>>> v;
+        for(int i = 1; i <= m; i++){
+            scanf("%d %d %d", &x, &y, &w);
+            g[x].pb(edge(y, w));
+            rev[y].pb(edge(x, w));
+            v.push_back({w, {x, y}});
+        }
+        sort(v.rbegin(), v.rend());
+        Dijkstra(s);
+        for(int i = 1; i <= n; i++){
+            tmp[i] = dist[i];
+        }
+        int res = -1;
+        Dijkstra1(t);
+        
+        for(int i = 0; i < m; i++){
+            x = v[i].first; y = v[i].second.first; w = v[i].second.second;
+            ll a =  tmp[y] + dist[w];
+            if(a + x <= p){
+                res = x; break;
+            }
+        }
+        //cout << ans << endl;
+        printf("Case %d: %d\n", cs, res);
+        for(int i = 1; i <= n; i++){
+            g[i].clear();
+            rev[i].clear();
+        }
+    }
+}
